@@ -1,7 +1,4 @@
 #!/bin/sh
 set -e -o pipefail
-cargo +nightly build --target wasm32-unknown-unknown --release
-rm -rf build/*
-wasm-bindgen target/wasm32-unknown-unknown/release/cbor_nemo157_com.wasm --out-dir build
-rm -rf dist/*
-npm run build
+wasm-pack build --target web --out-dir dist
+cp src/index.html src/style.css dist

@@ -2,7 +2,6 @@ language: rust
 
 cache:
 - cargo
-- npm
 
 stages:
 - name: test
@@ -10,12 +9,10 @@ stages:
   if: branch = master AND type = push AND fork = false
 
 rust:
-- nightly-2019-09-05
+- nightly-2019-12-14
 
 before_script:
-- >
-  [[ "$(cargo-sweep --version)" == "cargo-sweep 0.4.1" ]]
-  || cargo install --force cargo-sweep --version 0.4.1
+- cargo install cargo-sweep
 - cargo sweep --stamp
 
 before_cache:
@@ -23,19 +20,13 @@ before_cache:
 - cargo sweep --file
 
 install:
-- >
-  [[ "$(wasm-bindgen --version)" == "wasm-bindgen 0.2.54" ]]
-  || cargo install --force wasm-bindgen-cli --version 0.2.54
+- cargo install wasm-bindgen
+- cargo install wasm-pack
 - rustup target add wasm32-unknown-unknown
 
 script:
-- cargo build -Zmtime-on-use --target wasm32-unknown-unknown --release
-- mkdir build
-- wasm-bindgen
-    target/wasm32-unknown-unknown/release/cbor_nemo157_com.wasm
-    --out-dir build
-- npm install
-- npm run build
+- wasm-pack build --target web --out-dir dist
+- cp src/index.html src/style.css dist
 
 matrix:
   include:
