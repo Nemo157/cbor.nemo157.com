@@ -1,7 +1,7 @@
 use bumpalo::Bump;
-use iced_web::{Bus, Element, Widget, style::Sheet};
-use std::rc::Rc;
 use dodrio::Node;
+use iced_web::{style::Sheet, Bus, Element, Widget};
+use std::rc::Rc;
 
 pub struct TextArea<Message> {
     placeholder: String,
@@ -11,7 +11,11 @@ pub struct TextArea<Message> {
 }
 
 impl<Message> TextArea<Message> {
-    pub fn new(placeholder: &str, value: &str, on_change: impl Fn(String) -> Message + 'static) -> Self {
+    pub fn new(
+        placeholder: &str,
+        value: &str,
+        on_change: impl Fn(String) -> Message + 'static,
+    ) -> Self {
         Self {
             placeholder: String::from(placeholder),
             value: String::from(value),
@@ -44,17 +48,17 @@ where
         let mut node = dodrio::builder::textarea(bump)
             .attr(
                 "placeholder",
-                bumpalo::format!(in bump, "{}", self.placeholder)
-                    .into_bump_str(),
+                bumpalo::format!(in bump, "{}", self.placeholder).into_bump_str(),
             )
             .attr(
                 "value",
                 bumpalo::format!(in bump, "{}", self.value).into_bump_str(),
             )
             .on("input", move |root, vdom, event| {
-                let text_area = match event.target().and_then(|t| {
-                    t.dyn_into::<web_sys::HtmlTextAreaElement>().ok()
-                }) {
+                let text_area = match event
+                    .target()
+                    .and_then(|t| t.dyn_into::<web_sys::HtmlTextAreaElement>().ok())
+                {
                     None => return,
                     Some(text_area) => text_area,
                 };

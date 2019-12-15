@@ -1,6 +1,6 @@
 use bumpalo::Bump;
-use iced_web::{Widget, Element, Bus, style::Sheet};
 use dodrio::Node;
+use iced_web::{style::Sheet, Bus, Element, Widget};
 
 pub struct Pre {
     content: String,
@@ -8,12 +8,22 @@ pub struct Pre {
 
 impl Pre {
     pub fn new(content: impl Into<String>) -> Self {
-        Self { content: content.into() }
+        Self {
+            content: content.into(),
+        }
     }
 }
 
-impl<'a, Message> Widget<Message> for Pre where Message: 'static + Clone {
-    fn node<'b>(&self, bump: &'b Bump, _bus: &Bus<Message>, _style_sheet: &mut Sheet<'b>) -> Node<'b> {
+impl<'a, Message> Widget<Message> for Pre
+where
+    Message: 'static + Clone,
+{
+    fn node<'b>(
+        &self,
+        bump: &'b Bump,
+        _bus: &Bus<Message>,
+        _style_sheet: &mut Sheet<'b>,
+    ) -> Node<'b> {
         let content = bumpalo::format!(in bump, "{}", self.content);
 
         dodrio::builder::pre(bump)
@@ -22,7 +32,10 @@ impl<'a, Message> Widget<Message> for Pre where Message: 'static + Clone {
     }
 }
 
-impl<'a, Message> From<Pre> for Element<'a, Message> where Message: 'static + Clone {
+impl<'a, Message> From<Pre> for Element<'a, Message>
+where
+    Message: 'static + Clone,
+{
     fn from(pre: Pre) -> Element<'a, Message> {
         Element::new(pre)
     }
