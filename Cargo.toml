@@ -11,7 +11,16 @@ crate-type = ["cdylib"]
 cbor-diag = "0.1.4"
 iced = "0.1.0-beta"
 iced_web = "0.1.0"
+bumpalo = "2.6.0"
+dodrio = "0.1.0"
 
 [dependencies.wasm-bindgen]
 version = "0.2.54"
 features = ["serde-serialize"]
+
+[dependencies.web-sys]
+version = "0.3.32"
+features = [
+    "HtmlTextAreaElement",
+    "KeyboardEvent",
+]

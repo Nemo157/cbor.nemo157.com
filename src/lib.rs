@@ -1,4 +1,7 @@
-use iced::{Application, Column, Text, Command, Element, Settings, Row, button, Button, text_input, TextInput, Radio, Align, Color, Length, Container};
+use iced::{Application, Column, Text, Command, Element, Settings, Row, button, Button, text_input, Radio, Align, Length};
+use crate::widget::{Link, Pre, TextArea};
+
+mod widget;
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 enum ParseType {
@@ -15,11 +18,6 @@ impl Default for ParseType {
 
 #[derive(Debug, Default)]
 struct Header {
-    cbor_me_link: button::State,
-    cbor_io_link: button::State,
-    cbor_diag_link: button::State,
-    cbor_diag_cli_link: button::State,
-    github_link: button::State,
     dark_mode_toggle: button::State,
 }
 
@@ -38,7 +36,7 @@ struct Input {
 #[derive(Debug, Clone)]
 enum InputMsg {
     SelectParseType(ParseType),
-    ParseClicked,
+    DoParse,
     TextChange(String),
 }
 
@@ -70,19 +68,17 @@ enum PlaygroundMsg {
     Output(OutputMsg),
 }
 
-const BLUE: Color = Color { r: 0.0, g: 0.0, b: 1.0, a: 1.0 };
-
 fn text(label: &str) -> Text {
     Text::new(label).size(14)
+}
+
+fn space() -> Text {
+    text("\u{00A0}")
 }
 
 fn mono(label: &str) -> Text {
     // TODO: monospace font
     text(label).width(Length::Shrink)
-}
-
-fn link<'a, M>(state: &'a mut button::State, label: Text, _url: &str) -> Button<'a, M> {
-    Button::new(state, label.color(BLUE)).padding(0).border_radius(0).width(Length::Shrink)
 }
 
 impl Header {
@@ -97,31 +93,36 @@ impl Header {
             .spacing(40)
             .push(
                 Row::new()
-                .align_items(Align::Center)
                 .width(Length::Shrink)
                 .push(text("Inspired by"))
-                .push(link(&mut self.cbor_me_link, text("cbor.me"), "https://cbor.me")))
+                .push(space())
+                .push(Link::new(text("cbor.me"), "https://cbor.me")))
             .push(
                 Row::new()
                 .width(Length::Shrink)
                 .push(text("See"))
-                .push(link(&mut self.cbor_io_link, text("cbor.io"), "https://cbor.io"))
+                .push(space())
+                .push(Link::new(text("cbor.io"), "https://cbor.io"))
+                .push(space())
                 .push(text("for more information on what CBOR is")))
             .push(
                 Row::new()
                 .width(Length::Shrink)
                 .push(text("Built on"))
-                .push(link(&mut self.cbor_diag_link, mono("cbor-diag"), "https://crates.io/crates/cbor-diag")))
+                .push(space())
+                .push(Link::new(mono("cbor-diag"), "https://crates.io/crates/cbor-diag")))
             .push(
                 Row::new()
                 .width(Length::Shrink)
                 .push(text("New CLI Tool:"))
-                .push(link(&mut self.cbor_diag_cli_link, mono("cbor-diag-cli"), "https://crates.io/crates/cbor-diag-cli")))
+                .push(space())
+                .push(Link::new(mono("cbor-diag-cli"), "https://crates.io/crates/cbor-diag-cli")))
             .push(
                 Row::new()
                 .width(Length::Shrink)
                 .push(text("Hosted on"))
-                .push(link(&mut self.github_link, text("GitHub"), "https://github.com/Nemo157/cbor.nemo157.com")))
+                .push(space())
+                .push(Link::new(text("GitHub"), "https://github.com/Nemo157/cbor.nemo157.com")))
             .push(Button::new(&mut self.dark_mode_toggle, text("Toggle dark mode")))
     }
 }
@@ -151,7 +152,7 @@ impl Input {
                 self.selected_parse_type = ty;
                 None
             }
-            InputMsg::ParseClicked => {
+            InputMsg::DoParse => {
                 match parse(self.selected_parse_type, &self.input_text) {
                     Ok((hex, diag)) => Some(OutputMsg::Update { hex, diag }),
                     Err(msg) => Some(OutputMsg::Update { hex: msg, diag: "".to_owned() }),
@@ -159,7 +160,10 @@ impl Input {
             }
             InputMsg::TextChange(text) => {
                 self.input_text = text;
-                None
+                match parse(self.selected_parse_type, &self.input_text) {
+                    Ok((hex, diag)) => Some(OutputMsg::Update { hex, diag }),
+                    Err(msg) => None,
+                }
             }
         }
     }
@@ -167,13 +171,13 @@ impl Input {
     fn view(&mut self) -> impl Into<Element<'_, InputMsg>> {
         Column::new()
             .push(
-        Row::new()
-            .push(Radio::new(ParseType::Auto, "Auto", Some(self.selected_parse_type), InputMsg::SelectParseType))
-            .push(Radio::new(ParseType::Hex, "Hex", Some(self.selected_parse_type), InputMsg::SelectParseType))
-            .push(Radio::new(ParseType::Diag, "Diagnostic Notation", Some(self.selected_parse_type), InputMsg::SelectParseType))
-            .push(Button::new(&mut self.parse_button, text("Parse")).on_press(InputMsg::ParseClicked))
+            Row::new()
+                .push(Radio::new(ParseType::Auto, "Auto", Some(self.selected_parse_type), InputMsg::SelectParseType))
+                .push(Radio::new(ParseType::Hex, "Hex", Some(self.selected_parse_type), InputMsg::SelectParseType))
+                .push(Radio::new(ParseType::Diag, "Diagnostic Notation", Some(self.selected_parse_type), InputMsg::SelectParseType))
+                .push(Button::new(&mut self.parse_button, text("Parse")).on_press(InputMsg::DoParse))
             )
-            .push(TextInput::new(&mut self.input_text_state, "value to parse", &self.input_text, InputMsg::TextChange)).height(Length::Fill)
+            .push(TextArea::new("value to parse", &self.input_text, InputMsg::TextChange).on_submit(InputMsg::DoParse)).height(Length::Fill)
             .height(Length::Fill)
     }
 }
@@ -190,8 +194,8 @@ impl Output {
 
     fn view(&mut self) -> impl Into<Element<'_, OutputMsg>> {
         Column::new()
-            .push(Container::new(Text::new(&self.hex).height(Length::Fill)).height(Length::Fill))
-            .push(Container::new(Text::new(&self.diag).height(Length::Fill)))
+            .push(Pre::new(&self.hex))
+            .push(Pre::new(&self.diag))
             .height(Length::Fill)
     }
 }
