@@ -9,7 +9,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 cbor-diag = "0.1.4"
-serde = "1.0.102"
+iced = "0.1.0-beta"
+iced_web = "0.1.0"
 
 [dependencies.wasm-bindgen]
 version = "0.2.54"

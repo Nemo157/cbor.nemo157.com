@@ -5,50 +5,9 @@
     <title>CBOR Playground</title>
   </head>
   <body>
-    <div id='header'>
-      <span>Inspired by <a href="http://cbor.me">cbor.me</a></span>
-      <span>
-        See <a href="http://cbor.io">cbor.io</a> for more information on what
-        CBOR is
-      </span>
-      <span>
-        Built on
-        <a href="https://crates.io/crates/cbor-diag" style="font-family: monospace">cbor-diag</a>
-      </span>
-      <span>
-        New CLI Tool:
-        <a href="https://crates.io/crates/cbor-diag-cli" style="font-family: monospace">cbor-diag-cli</a>
-      </span>
-      <span>
-        Hosted on <a href="https://github.com/Nemo157/cbor.nemo157.com">GitHub</a>
-      </span>
-      <button id='dark'>Toggle dark mode</button>
-    </div>
-    <div id='main'>
-      <div id='left'>
-        <div id='parse'>
-          <input id='type_auto' type='radio' name='type' value='auto' />
-          <label for='type_auto'>Auto</label>
-          <input id='type_hex' type='radio' name='type' value='hex' />
-          <label for='type_hex'>Hex</label>
-          <input id='type_diag' type='radio' name='type' value='diag' />
-          <label for='type_diag'>Diagnostic Notation</label>
-          <button id='submit'>Parse</button>
-        </div>
-        <textarea id='input'></textarea>
-        <button id='save'>Generate URL for this text</button>
-        <div id='saved-container'>
-          <a href="about:blank" id='saved'></a>&nbsp;
-          <button id='copy-button'>📋</button>
-          <span id='copied' style='display: none; opacity: 0'>Copied!</span>
-        </div>
-      </div>
-      <div id='right'>
-        <pre id='hex'></pre>
-        <pre id='diag'></pre>
-      </div>
-    </div>
-    <div id='footer'>
-    </div>
+    <script type="module">
+      import init from './cbor_nemo157_com.js';
+      (async () => await init())()
+    </script>
   </body>
 </html>
