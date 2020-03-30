@@ -14,3 +14,6 @@ serde = "1.0.105"
 [dependencies.wasm-bindgen]
 version = "0.2.60"
 features = ["serde-serialize"]
+
+[patch.crates-io]
+cbor-diag = { git = "https://github.com/Nemo157/cbor-diag-rs", branch = "color" }

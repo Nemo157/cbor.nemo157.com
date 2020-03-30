@@ -54,7 +54,7 @@ cbor.then(cbor => {
     }
 
     hex.textContent = result.Ok[0]
-    diag.textContent = result.Ok[1]
+    diag.innerHTML = result.Ok[1]
   }
 
   const process = () => {
